@@ -16,34 +16,39 @@ namespace ConsoleWordle
 
         static void Main(string[] args)
         {
-            Random _rng = new Random();
 
-            List<String> wordList = LoadWords();
+            //The game needs these variables. You can create some of your own if you need them, but don't remove these ones.
+            Random _rng = new Random();   //RNG generator
 
-            String mysteryWord = wordList[_rng.Next(wordList.Count)];
-            string currentWord = "";
-            int wordGuessCount = 0;
-            int totalGuessCount = 0;
-            int wordCount = 1;
-            float avgGuessCount = 0;
+            List<String> wordList = LoadWords();  //List of words loaded from file.
+
+            String mysteryWord = wordList[_rng.Next(wordList.Count)];  //select the initial mystery word from the list - at random.
+            string currentGuessWord = "";  //human or AI guess word
+            int wordGuessCount = 0;  //count how many guesses
+            int totalGuessCount = 0; //keep track of total guesses for average guess count
+            int wordCount = 1;  //keep track of how many words have been guessed correctly
+            float avgGuessCount = 0;  //keep track of average guess count
+
+            List<String> AIWordList = LoadWords();  //**AI NOTE: i created this for you to use. It's a copy of the word list that the AI can access and/or change.
+            LetterStatus[] AIStatusTracker;  //This is an array of 5 elements that tracks the status of each letter in a guessed word. You can use this to help your AI figure out what to guess next.
 
 
-            List<String> AIWordList = LoadWords();
-            LetterStatus[] AIStatusTracker;
-            
+            //You can create your own variables here if needed.
+
+
 
 
 
             while (wordCount < 10)  //change this to 100 when ready to flex your AI. 10 is just for testing.
             {
-                //**AI Note: Leave this alone. 
+                //Leave this alone. It counts how many words have been guessed.
                 wordGuessCount++;
 
 
 
                 //AI START
                 //I believe most of your AI code could go here. The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
-                currentWord = GetWord("What is your guess: ");
+                currentGuessWord = GetWord("What is your guess: ");
                 
 
 
@@ -52,8 +57,9 @@ namespace ConsoleWordle
 
 
 
-                //**AI Note: Leave this alone. It checks to see if the word you guessed is a valid word.
-                if (wordList.Contains(currentWord) == false)
+                //Leave this alone. It checks to see if the word you guessed is a valid word. This will work for your AI too. If the guessed word
+                //isn't a real word, the loop will restart without costing a guess.
+                if (wordList.Contains(currentGuessWord) == false)
                 {
                     Console.WriteLine("Not a valid word, try again.");
                     wordGuessCount--;
@@ -62,11 +68,12 @@ namespace ConsoleWordle
                 
 
                 //**AI Note: You can use AIStatusTracker to "see" what's right and what's wrong in your guessed word before checking your next word.
-                AIStatusTracker = CheckWord(mysteryWord, currentWord);
+                //ALSO CheckWord is what checks the guessed word against the mystery word. Try not to remove or change this unless you REALLY know what you're doing.
+                AIStatusTracker = CheckWord(mysteryWord, currentGuessWord);
                 
 
-                //**AI Note: Leave this alone. It tells you when you found the word.
-                if (mysteryWord.Equals(currentWord))
+                //Leave this alone. It tells you when you found the word, updates the counters, and moves on to the next word.
+                if (mysteryWord.Equals(currentGuessWord))
                 {
                     totalGuessCount += wordGuessCount;
                     avgGuessCount = (float)totalGuessCount / wordCount;
@@ -83,20 +90,22 @@ namespace ConsoleWordle
         }
 
 
-        //Check the guessed word against the myster word.
-        //Don't change this without asking me first.
+        //Check the guessed word against the mystery word.
+        //Don't change this function without asking me first.
         static LetterStatus[] CheckWord(String word, String guess)
         {
-            char[] wordChars = word.ToCharArray();
+            char[] wordChars = word.ToCharArray();      //convert mystery word and guessed word to char arrays for easier comparison.
             char[] guessChars = guess.ToCharArray();
 
-            LetterStatus[] statusTracker = new LetterStatus[5];
+            LetterStatus[] statusTracker = new LetterStatus[5]; //an array to hold the status of each guessed letter.
+            //assume all the guessed letters start "incorrect"
             statusTracker[0] = LetterStatus.Incorrect;
             statusTracker[1] = LetterStatus.Incorrect;
             statusTracker[2] = LetterStatus.Incorrect;
             statusTracker[3] = LetterStatus.Incorrect;
             statusTracker[4] = LetterStatus.Incorrect;
 
+            //This is part of the world rule check. This is used to deal with multiple green or yellow letters. Don't remove it.
             List<char> letterCounter = word.ToList();
  
             //green letters - right letter, right place
@@ -104,11 +113,11 @@ namespace ConsoleWordle
             {
                 for (int j = 0; j < wordChars.Length; j++ )
                 {
-                    if (guessChars[i] == wordChars[j] && i == j)
+                    if (guessChars[i] == wordChars[j] && i == j)  //right letter, right place
                     { 
-                        statusTracker[i] = LetterStatus.Correct;
-                        letterCounter.Remove(guessChars[i]);
-                        break; 
+                        statusTracker[i] = LetterStatus.Correct;  //set the status in the array
+                        letterCounter.Remove(guessChars[i]);      //remove the letter from the counter so it can't be flagged yellow later
+                        break;                                    //stop the loop since we found a match for this letter
                     }
                 }
 
@@ -119,42 +128,39 @@ namespace ConsoleWordle
             {
                 for (int j = 0; j < wordChars.Length; j++)
                 {
-                    if (statusTracker[i] == LetterStatus.Correct)
+                    if (statusTracker[i] == LetterStatus.Correct)       //if the letter is already flagged green, don't check it again
                         break;
 
-                    if (guessChars[i] == wordChars[j] && i != j && statusTracker[j] != LetterStatus.Correct)
+                    if (guessChars[i] == wordChars[j] && i != j && statusTracker[j] != LetterStatus.Correct)    //right letter, wrong place and not already flagged green (correct)
                     {
                         //count occurences of that letter, only flag yellow if flags < actual occurences
                         if (letterCounter.Contains(guessChars[i]))
                         {
-                            statusTracker[i] = LetterStatus.WrongPlace;
-                            letterCounter.Remove(guessChars[i]);
+                            statusTracker[i] = LetterStatus.WrongPlace;  //set the status in the array
+                            letterCounter.Remove(guessChars[i]);        //remove the letter from future consideration so it can't be flagged yellow again
                         }
                     }
                 }
 
             }
 
+            //print the guessed word with colors for correct and wrong place letters. 
             for (int i = 0; i < guessChars.Length; i++)
             {
+                //set the color
                 if(statusTracker[i] == LetterStatus.Correct)
-                {
                     Console.ForegroundColor = ConsoleColor.Green;
-                }
                 else if (statusTracker[i] == LetterStatus.WrongPlace)
-                {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                }
                 else
-                {
                     Console.ForegroundColor = ConsoleColor.White;
-                }
-                Console.Write(guessChars[i]);
-                Console.ForegroundColor = ConsoleColor.White;
+              
+                Console.Write(guessChars[i]);  //print the letter
+                Console.ForegroundColor = ConsoleColor.White;  //reset back to white for the next letter
             }
-            Console.WriteLine();
+            Console.WriteLine();        //print a new line after the guessed word is printed
 
-            return statusTracker;
+            return statusTracker;       //return the arrray - mostly of use for the AI
         }
 
 
