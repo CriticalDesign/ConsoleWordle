@@ -43,14 +43,14 @@ namespace ConsoleWordle
             {
                 //Leave this alone. It counts how many words have been guessed.
                 wordGuessCount++;
-
+                currentGuessWord = GetWord("What is your guess: ");
 
 
                 //AI START
                 //I believe most of your AI code could go here. The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
-                currentGuessWord = GetWord("What is your guess: ");
-                
 
+                //Comment out the line above before uncommenting this line.
+                //currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)];
 
 
                 //AI FINISH
