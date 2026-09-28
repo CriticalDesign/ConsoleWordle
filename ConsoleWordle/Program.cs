@@ -32,28 +32,30 @@ namespace ConsoleWordle
             List<String> AIWordList = LoadWords();  //**AI NOTE: i created this for you to use. It's a copy of the word list that the AI can access and/or change.
             LetterStatus[] AIStatusTracker;  //This is an array of 5 elements that tracks the status of each letter in a guessed word. You can use this to help your AI figure out what to guess next.
 
-
             //You can create your own variables here if needed.
 
 
 
 
 
-            while (wordCount < 10)  //change this to 100 when ready to flex your AI. 10 is just for testing.
+            while (wordCount < 10)  //change this to 1000 when ready to flex your AI. 10 is just for testing.
             {
                 //Leave this alone. It counts how many words have been guessed.
                 wordGuessCount++;
-                currentGuessWord = GetWord("What is your guess: ");
+                //currentGuessWord = GetWord("What is your guess: ");  //comment this out when you are working with your AI
 
 
-                //AI START
-                //I believe most of your AI code could go here. The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
 
-                //Comment out the line above before uncommenting this line.
-                //currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)];
+                //AI START -- this is where your first guess goes. Not subsequent guesses. So find a way to skip this 
+                //when it's not the first guess.
+
+                //Comment the GetWord() call above to make your AI ignore the human check. (around line 45)
+                currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)];
 
 
                 //AI FINISH
+
+
 
 
 
@@ -67,10 +69,28 @@ namespace ConsoleWordle
                 }
                 
 
+
+
                 //**AI Note: You can use AIStatusTracker to "see" what's right and what's wrong in your guessed word before checking your next word.
                 //ALSO CheckWord is what checks the guessed word against the mystery word. Try not to remove or change this unless you REALLY know what you're doing.
                 AIStatusTracker = CheckWord(mysteryWord, currentGuessWord);
-                
+
+
+
+
+                //AI START -- this is where your next guess goes.
+
+
+                //I believe most of your AI code could go here.
+                //
+                //The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
+
+
+                //AI FINISH
+
+
+
+
 
                 //Leave this alone. It tells you when you found the word, updates the counters, and moves on to the next word.
                 if (mysteryWord.Equals(currentGuessWord))
@@ -182,7 +202,7 @@ namespace ConsoleWordle
 
 
 
-        //This is the original humamn player GetWord method.
+        //This is the original human player GetWord method.
         //You can write an AI version, if it's helpful for
         //you.
         static string GetWord(String prompt)
